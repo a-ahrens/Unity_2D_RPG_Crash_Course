@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
     private float xInput;
+    private int facingDirection = 1;
+    private bool facingRight = true;
 
     void Start()
     {
@@ -21,18 +23,18 @@ public class Player : MonoBehaviour
         CheckInput();
         Movement();
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Jump();
-        }
-
+        FlipController();
         AnimatorControllers();
-
     }
 
     private void CheckInput()
     {
         xInput = Input.GetAxisRaw("Horizontal");
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Jump();
+        }
     }
 
     private void Movement()
@@ -50,5 +52,20 @@ public class Player : MonoBehaviour
         bool isMoving = rb.velocity.x != 0 ? true : false;
 
         anim.SetBool("isMoving", isMoving);
+    }
+
+    private void Flip()
+    {
+        facingDirection = facingDirection * -1;
+        facingRight = !facingRight;
+        transform.Rotate(0, 180, 0);
+    }
+
+    private void FlipController()
+    {
+        if((rb.velocity.x > 0 && !facingRight) || (rb.velocity.x < 0 && facingRight))
+        {
+            Flip();
+        }
     }
 }
