@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -12,15 +10,16 @@ public class Player : MonoBehaviour
 
     [Header("Dash Info")]
     [SerializeField] private float _dashDuration;
-    [SerializeField] private float _dashTime;
-
+    [SerializeField] private float _dashSpeed;
+    [SerializeField] private float _dashCooldown;
+    private float _dashTime;
+    private float _dashCooldownTimer;
 
     private float xInput;
     private int facingDirection = 1;
     private bool facingRight = true;
 
     [Header("Collision Info")]
-    [SerializeField] private float _dashSpeed;
     [SerializeField] private float _groundCheckDistance;
     [SerializeField] private LayerMask _whatIsGround;
     private bool _isGrounded;
@@ -37,11 +36,7 @@ public class Player : MonoBehaviour
         Movement();
 
         _dashTime -= Time.deltaTime;
-
-        if(Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            _dashTime = _dashDuration;
-        }
+        _dashCooldownTimer -= Time.deltaTime;
 
         CollisionChecks();
 
@@ -62,11 +57,26 @@ public class Player : MonoBehaviour
         {
             Jump();
         }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            DashAbility();
+        }
+
+    }
+
+    private void DashAbility()
+    {
+        if (_dashCooldownTimer <= 0)
+        {
+            _dashCooldownTimer = _dashCooldown;
+            _dashTime = _dashDuration;
+        }
     }
 
     private void Movement()
     {
-        if(_dashTime > 0)
+        if (_dashTime > 0)
         {
             /* Setting the y velocity to 0 creates a nice darting effect.
              * Player doesn't lose elevation if performed in the air.
@@ -83,7 +93,7 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
-        if(_isGrounded)
+        if (_isGrounded)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         }
@@ -108,7 +118,7 @@ public class Player : MonoBehaviour
 
     private void FlipController()
     {
-        if((rb.velocity.x > 0 && !facingRight) || (rb.velocity.x < 0 && facingRight))
+        if ((rb.velocity.x > 0 && !facingRight) || (rb.velocity.x < 0 && facingRight))
         {
             Flip();
         }
