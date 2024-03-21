@@ -10,11 +10,17 @@ public class Player : MonoBehaviour
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
 
+    [Header("Dash Info")]
+    [SerializeField] private float _dashDuration;
+    [SerializeField] private float _dashTime;
+
+
     private float xInput;
     private int facingDirection = 1;
     private bool facingRight = true;
 
     [Header("Collision Info")]
+    [SerializeField] private float _dashSpeed;
     [SerializeField] private float _groundCheckDistance;
     [SerializeField] private LayerMask _whatIsGround;
     private bool _isGrounded;
@@ -29,6 +35,13 @@ public class Player : MonoBehaviour
     {
         CheckInput();
         Movement();
+
+        _dashTime -= Time.deltaTime;
+
+        if(Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            _dashTime = _dashDuration;
+        }
 
         CollisionChecks();
 
@@ -53,7 +66,19 @@ public class Player : MonoBehaviour
 
     private void Movement()
     {
-        rb.velocity = new Vector2(xInput * moveSpeed, rb.velocity.y);
+        if(_dashTime > 0)
+        {
+            /* Setting the y velocity to 0 creates a nice darting effect.
+             * Player doesn't lose elevation if performed in the air.
+             * If 0 is replaced with rb.velocity.y, then you achieve a parabolic curve type path.
+             */
+            rb.velocity = new Vector2(xInput * _dashSpeed, 0);
+        }
+        else
+        {
+            rb.velocity = new Vector2(xInput * moveSpeed, rb.velocity.y);
+        }
+
     }
 
     private void Jump()
@@ -71,6 +96,7 @@ public class Player : MonoBehaviour
         anim.SetFloat("yVelocity", rb.velocity.y);
         anim.SetBool("isMoving", isMoving);
         anim.SetBool("isGrounded", _isGrounded);
+        anim.SetBool("isDashing", _dashTime > 0);
     }
 
     private void Flip()
