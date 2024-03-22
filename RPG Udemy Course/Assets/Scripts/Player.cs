@@ -1,10 +1,8 @@
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : Entity
 {
-    private Rigidbody2D rb;
-    private Animator anim;
-
+    [Header("Move Info")]
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
 
@@ -22,30 +20,26 @@ public class Player : MonoBehaviour
     private int _comboCounter;
 
     private float xInput;
-    private int facingDirection = 1;
-    private bool facingRight = true;
 
-    [Header("Collision Info")]
-    [SerializeField] private float _groundCheckDistance;
-    [SerializeField] private LayerMask _whatIsGround;
-    private bool _isGrounded;
 
-    void Start()
+
+
+    protected override void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        anim = GetComponentInChildren<Animator>();
+        base.Start();
     }
 
-    void Update()
+
+    protected override void Update()
     {
+        base.Update();
+
         CheckInput();
         Movement();
 
         _dashTime -= Time.deltaTime;
         _dashCooldownTimer -= Time.deltaTime;
         _comboTimeWindow -= Time.deltaTime;
-
-        CollisionChecks();
 
         FlipController();
         AnimatorControllers();
@@ -61,11 +55,6 @@ public class Player : MonoBehaviour
             _comboCounter = 0;
         }
 
-    }
-
-    private void CollisionChecks()
-    {
-        _isGrounded = Physics2D.Raycast(transform.position, Vector2.down, _groundCheckDistance, _whatIsGround);
     }
 
     private void CheckInput()
@@ -156,12 +145,7 @@ public class Player : MonoBehaviour
         anim.SetInteger("comboCounter", _comboCounter);
     }
 
-    private void Flip()
-    {
-        facingDirection = facingDirection * -1;
-        facingRight = !facingRight;
-        transform.Rotate(0, 180, 0);
-    }
+
 
     private void FlipController()
     {
@@ -169,10 +153,5 @@ public class Player : MonoBehaviour
         {
             Flip();
         }
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawLine(transform.position, new Vector3(transform.position.x, transform.position.y - _groundCheckDistance));
     }
 }
