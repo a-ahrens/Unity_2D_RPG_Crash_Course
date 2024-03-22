@@ -196,6 +196,8 @@ MonoBehaviour:
   _dashDuration: 0.25
   _dashSpeed: 25
   _dashCooldown: 1.4
+  _comboTime: 1
+  _comboTimeWindow: 0
   _groundCheckDistance: 1.47
   _whatIsGround:
     serializedVersion: 2

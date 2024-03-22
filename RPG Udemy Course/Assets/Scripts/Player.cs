@@ -16,6 +16,8 @@ public class Player : MonoBehaviour
     private float _dashCooldownTimer;
 
     [Header("Attack Info")]
+    [SerializeField] private float _comboTime = 0.3f;
+    [SerializeField] private float _comboTimeWindow;
     private bool _isAttacking;
     private int _comboCounter;
 
@@ -41,6 +43,7 @@ public class Player : MonoBehaviour
 
         _dashTime -= Time.deltaTime;
         _dashCooldownTimer -= Time.deltaTime;
+        _comboTimeWindow -= Time.deltaTime;
 
         CollisionChecks();
 
@@ -51,6 +54,13 @@ public class Player : MonoBehaviour
     public void AttackOver()
     {
         _isAttacking = false;
+        _comboCounter++;
+        
+        if(_comboCounter > 2)
+        {
+            _comboCounter = 0;
+        }
+
     }
 
     private void CollisionChecks()
@@ -74,14 +84,30 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            _isAttacking = true;
+            StartAttack();
         }
 
     }
 
+    private void StartAttack()
+    {
+        if(!_isGrounded)
+        {
+            return;
+        }
+
+        if (_comboTimeWindow < 0)
+        {
+            _comboCounter = 0;
+        }
+
+        _isAttacking = true;
+        _comboTimeWindow = _comboTime;
+    }
+
     private void DashAbility()
     {
-        if (_dashCooldownTimer <= 0)
+        if (_dashCooldownTimer <= 0 && !_isAttacking)
         {
             _dashCooldownTimer = _dashCooldown;
             _dashTime = _dashDuration;
@@ -90,13 +116,18 @@ public class Player : MonoBehaviour
 
     private void Movement()
     {
-        if (_dashTime > 0)
+        if(_isAttacking)
+        {
+            rb.velocity = new Vector2(0, 0);
+        }
+
+        else if (_dashTime > 0)
         {
             /* Setting the y velocity to 0 creates a nice darting effect.
              * Player doesn't lose elevation if performed in the air.
              * If 0 is replaced with rb.velocity.y, then you achieve a parabolic curve type path.
              */
-            rb.velocity = new Vector2(xInput * _dashSpeed, 0);
+            rb.velocity = new Vector2(facingDirection * _dashSpeed, 0);
         }
         else
         {
