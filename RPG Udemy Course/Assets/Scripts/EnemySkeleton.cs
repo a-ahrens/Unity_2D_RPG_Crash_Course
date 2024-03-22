@@ -18,7 +18,7 @@ public class EnemySkeleton : Entity
     {
         base.Update();
 
-        if(!_isGrounded)
+        if(!_isGrounded || _isWallDetected)
         {
             Flip();
         }
